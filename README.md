@@ -73,7 +73,7 @@ Some parts of the training / evaluation / inference pipeline may be adapted from
 > You can place your method figure here, for example `assets/framework.png`.
 
 <p align="center">
-  <img src="assets/framework.png" width="85%">
+  <img src="assets/method.png" width="85%">
 </p>
 
 **Figure:** Overview of KVSlimmer.  
