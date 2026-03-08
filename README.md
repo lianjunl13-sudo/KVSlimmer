@@ -6,9 +6,9 @@
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-green.svg)]()
 
-Official implementation of **KVSlimmer**, a theoretically grounded and efficient asymmetric KV cache merging framework for long-context LLM inference.
+**KVSlimmer**, a theoretically grounded and efficient asymmetric KV cache merging framework for long-context LLM inference.
 
-KVSlimmer is developed on top of the **AsymKV** codebase and extends it with improved theoretical foundations, a more principled merging formulation, and practical optimizations for efficient long-context generation.
+This repository is built upon the open-source **AsymKV** codebase, and extends it with improved theoretical foundations, a more principled merging formulation, and practical optimizations for efficient long-context generation. We sincerely thank the authors of **AsymKV** for making their code publicly available.
 
 ---
 
@@ -21,93 +21,57 @@ KVSlimmer is developed on top of the **AsymKV** codebase and extends it with imp
 ---
 
 ## Overview
-
-Large Language Models (LLMs) suffer from substantial memory and latency overhead when serving long-context inference, largely due to the growth of the Key-Value (KV) cache.
-
-**AsymKV** revealed an important asymmetry between keys and values:
-- **keys** tend to exhibit stronger local homogeneity,
-- **values** tend to preserve higher heterogeneity.
-
-Built upon this observation, **KVSlimmer** further improves asymmetric KV merging from both **theoretical** and **practical** perspectives.
-
-### KVSlimmer provides:
-- a stronger theoretical understanding of asymmetric KV merging,
-- a more principled and efficient merging objective,
-- practical optimizations for long-context inference,
-- improved performance-memory-latency trade-offs.
-
----
-
-## Key Contributions
-
-- **Theoretical insights into KV asymmetry**  
-  KVSlimmer provides a stronger theoretical interpretation of why asymmetric merging works.
-
-- **Practical optimization for KV merging**  
-  KVSlimmer introduces a more efficient merging strategy tailored for long-context LLM inference.
-
-- **Efficient long-context serving**  
-  KVSlimmer reduces KV cache overhead while maintaining strong downstream performance.
-
-- **Improved empirical performance**  
-  KVSlimmer is designed to outperform prior AsymKV-style methods under comparable budgets.
-
----
-
-## Relation to AsymKV
-
-This repository builds upon and extends the open-source implementation of **AsymKV**.
-
-Compared with AsymKV, KVSlimmer focuses on:
-- stronger theoretical grounding,
-- improved asymmetric KV merging formulation,
-- more efficient practical implementation,
-- better long-context inference trade-offs.
-
-Some parts of the training / evaluation / inference pipeline may be adapted from the AsymKV repository, while the core KVSlimmer algorithm and related improvements are introduced in this work.
-
----
-
-## Method Illustration
-
-> You can place your method figure here, for example `assets/framework.png`.
-
 <p align="center">
   <img src="assets/method.png" width="85%">
 </p>
 
-**Figure:** Overview of KVSlimmer.  
-KVSlimmer performs asymmetric KV cache merging for long-context inference by leveraging the distinct structural properties of keys and values.
+The growing computational and memory demands of the Key‑Value (KV) cache significantly limit the ability of Large Language Models (LLMs). While KV merging has emerged as a promising solution, existing methods that rely on empirical observations of KV asymmetry and gradient-based Hessian approximations lack a theoretical foundation and incur suboptimal compression and inference overhead.
+To bridge these gaps, we establish a theoretical framework that characterizes this asymmetry through the spectral energy distribution of projection weights, demonstrating that concentrated spectra in Query/Key weights induce feature homogeneity, whereas dispersed spectra in Value weights preserve heterogeneity.
+Then, we introduce KVSlimmer, an efficient algorithm that captures exact Hessian information through a mathematically exact formulation, and derives a closed-form solution utilizing only forward-pass variables, resulting in a gradient-free approach that is both memory- and time-efficient.
+Extensive experiments across various models and benchmarks demonstrate that KVSlimmer consistently outperforms SOTA methods. For instance, on Llama3.1-8B-Instruct, it improves the LongBench average score by 0.92 while reducing memory costs and latency by 29\% and 28\%, respectively.
 
----
+# Installation
+## Environment Setup
+## Environment Setup
+```bash
+conda create -yn kvslimmer python=3.9
+conda activate kvslimmer
 
-## Repository Structure
+pip install torch torchvision torchaudio
+pip install transformers==4.33.0 accelerate datasets evaluate wandb scikit-learn scipy sentencepiece
 
-```text
-KVSlimmer/
-├── README.md
-├── LICENSE
-├── requirements.txt
-├── .gitignore
-├── assets/
-│   ├── framework.png
-│   └── results.png
-├── kvslimmer/
-│   ├── __init__.py
-│   ├── cache.py
-│   ├── merge.py
-│   ├── attention_patch.py
-│   └── utils.py
-├── scripts/
-│   ├── run_longbench.sh
-│   ├── eval_longbench.py
-│   └── benchmark_latency.py
-├── examples/
-│   ├── quick_start.py
-│   └── demo_qwen2.py
-├── configs/
-│   ├── llama31_8b.yaml
-│   └── qwen2_7b.yaml
-├── docs/
-│   └── reproduction.md
-└── outputs/
+git clone https://github.com/the-scale-lab/Asymkv.git
+cd Asymkv
+pip install -e .
+
+cd ..
+git clone <YOUR_KVSLIMMER_REPO_URL> KVSlimmer
+cd KVSlimmer
+pip install -e .
+```
+
+## Model Requirements
+```json
+{
+    "Llama-3-8B-Instruct" : "transformers==4.33.0",
+    "Llama-3.1-8B-Instruct" : "transformers==4.44.2",
+    "Mistral-7B-Instruct-v0.3": "transformers==4.44.2",
+    "Qwen2-7B-Instruct" : "transformers==4.44.2",
+}
+```
+# Experiments
+
+## LongBench
+Run the following command to evaluate KVSlimmer on LongBench:
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node=8 --master_port 6656 pred.py --model Llama-3.1-8B-Instruct
+```
+# Acknowledgements
+This repo is built upon the following projects:
+- [LongBench](https://github.com/THUDM/LongBench/)
+- [Streamingllm](https://github.com/mit-han-lab/streaming-llm)
+- [Pyramidkv](https://github.com/Zefan-Cai/KVCache-Factory/)
+- [AsymKV](https://github.com/the-scale-lab/Asymkv/)
+
+# TODO
+- [ ] Implement Triton-based FlashAttention kernel with AsymKV support
