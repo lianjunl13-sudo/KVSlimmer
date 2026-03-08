@@ -4,7 +4,7 @@
 
 [![Paper](https://img.shields.io/badge/Paper-arXiv-b31b1b.svg)](https://arxiv.org/abs/2603.00907)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-green.svg)]()
+[![Python](https://img.shields.io/badge/Python-3.9%2B-green.svg)]()
 
 **KVSlimmer**, a theoretically grounded and efficient asymmetric KV cache merging framework for long-context LLM inference.
 
@@ -28,10 +28,9 @@ This repository is built upon the open-source **AsymKV** codebase, and extends i
 The growing computational and memory demands of the Key‑Value (KV) cache significantly limit the ability of Large Language Models (LLMs). While KV merging has emerged as a promising solution, existing methods that rely on empirical observations of KV asymmetry and gradient-based Hessian approximations lack a theoretical foundation and incur suboptimal compression and inference overhead.
 To bridge these gaps, we establish a theoretical framework that characterizes this asymmetry through the spectral energy distribution of projection weights, demonstrating that concentrated spectra in Query/Key weights induce feature homogeneity, whereas dispersed spectra in Value weights preserve heterogeneity.
 Then, we introduce KVSlimmer, an efficient algorithm that captures exact Hessian information through a mathematically exact formulation, and derives a closed-form solution utilizing only forward-pass variables, resulting in a gradient-free approach that is both memory- and time-efficient.
-Extensive experiments across various models and benchmarks demonstrate that KVSlimmer consistently outperforms SOTA methods. For instance, on Llama3.1-8B-Instruct, it improves the LongBench average score by 0.92 while reducing memory costs and latency by 29\% and 28\%, respectively.
+Extensive experiments across various models and benchmarks demonstrate that KVSlimmer consistently outperforms SOTA methods. For instance, on Llama3.1-8B-Instruct, it improves the LongBench average score by 0.92 while reducing memory costs and latency by 29% and 28%, respectively.
 
 # Installation
-## Environment Setup
 ## Environment Setup
 ```bash
 conda create -yn kvslimmer python=3.9
@@ -45,7 +44,7 @@ cd Asymkv
 pip install -e .
 
 cd ..
-git clone <YOUR_KVSLIMMER_REPO_URL> KVSlimmer
+git clone https://github.com/lianjunl13-sudo/KVSlimmer.git
 cd KVSlimmer
 pip install -e .
 ```
@@ -56,7 +55,7 @@ pip install -e .
     "Llama-3-8B-Instruct" : "transformers==4.33.0",
     "Llama-3.1-8B-Instruct" : "transformers==4.44.2",
     "Mistral-7B-Instruct-v0.3": "transformers==4.44.2",
-    "Qwen2-7B-Instruct" : "transformers==4.44.2",
+    "Qwen2-7B-Instruct" : "transformers==4.44.2"
 }
 ```
 # Experiments
@@ -74,4 +73,4 @@ This repo is built upon the following projects:
 - [AsymKV](https://github.com/the-scale-lab/Asymkv/)
 
 # TODO
-- [ ] Implement Triton-based FlashAttention kernel with AsymKV support
+- [ ] Implement Triton-based FlashAttention kernel with KVSlimmer support
